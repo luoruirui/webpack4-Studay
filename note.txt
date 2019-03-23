@@ -1,0 +1,85 @@
+webpack4
+
+按装：
+npm install webpack --save-dev
+npm install webpack-cli --save-dev
+4.0以上的都依赖webpack-cli 所以也要按
+执行文件：
+cmd
+找到执行文件
+cd  到这里node_modules\.bin\webpack
+进入后
+webpack -v 查看版本号
+
+--entry : 入口文件   node_modules\.bin\webpack entry="./src/main.js"
+ (main.js 这里是设置了 如果没有设置就默认找index.)
+--output:出文件 output="./dist/index.js"
+--progress ：打包的进度显示
+--mode :development     production   生产环境
+--watch 监听文件
+npx  ：可以不通过 node_modules\.bin\webpack 自己找这个文件 npm 8.2以上才可以
+//设置多出口 多出口文件
+let path  =require('path');
+module.exports={
+    entry: {
+      a:'./src/a.js',
+      b:'./src/b.js'
+    },
+    output: {
+        filename: "[name]-[hash]-[chunk]-index.js",
+        path: path.resolve('./dist')
+    },
+    module:{
+       rules: [
+                  {test: /\.js/,use:'babel-loader', exclude:/node_modules/},
+                  {test: /\.css/,use:["style-loader","css-loader"]}, 也可这样 {test:/\.css/, loader: 'style-loader!css-loader!postcss-loader'},
+                  {test: /\.less/,use:["style-loader","css-loader","less-loader"]},
+                  {test:/\.(jpg|gig|png)$/, loader: 'url-loader', options: {limit:8192}}, limit 单位b 最大8192b
+                  {test:/\.(jpg|gig|png)$/, use:'file-loader'},
+
+              ]
+    },
+      plugins: [
+            new HtmlWebpackPlugin({
+                template: "./index.html",   打包后index.html的模板，模板内的东西打包好后不会改变，还能自动添加script标签
+                filename: "./index2.html",  打包后的新的html文件名字
+                inject: head/body,      打包好的html文件的script是在body 还是head
+                chunks:["a"] , 打包后的要引的script标签的名字
+                title:"页面的titile"
+            })
+             多个页面就再new 一个htmlWebpackPlugin
+        ]
+};
+
+index.html文件的html- webpack-plugin 这个插件 默认生产index.html 文本生成的时候就默认把刚才的打包的a.js和b。js一起引入了
+
+hash ：哈希值
+name :是上面入口文件里的名字
+在js 中可以写成 import "style-loader!css-loader!a.css";
+处理js
+npm install babel-loader  --save-dev
+npm install babel-preset-es2015 --save-dev
+npm install babel-preset-stage-2 --save-dev
+需要在根目录下新建一个.babelrc 的文件
+里面要写
+{
+  "presets": ["es2015","stage-2"]
+}
+处理css
+npm install style-loader css-loader --save-dev  css转义
+npm install postcss-loader --save-dev
+npm install less-loader --save-dev
+npm install less --save-dev
+帮助我不兼容的css3代码加前缀的 要在根目录下新建一个postcss.config文件
+npm install autoprefixer --save-dev
+处理图片
+npm install url-loader --save-dev   处理图片的 这样转的上base64码 可以限制base64的长度
+npm install file-loader --save-dev   处理文件的
+
+rules里面
+include: '/src' 包含是src文件里面的
+exclude  __dirname+"src"/node_modules/
+
+
+--watch
+webpack-dev-server 开发服务
